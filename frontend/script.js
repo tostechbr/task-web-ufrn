@@ -1,54 +1,3 @@
-const form = document.getElementById('task-form');
-const taskInput = document.getElementById('task-input');
-
-function checkAuthentication() {
-  const userEmail = localStorage.getItem('userEmail');
-  if (userEmail) {
-    showTasksContent();
-  } else {
-    showLoginForm();
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  checkAuthentication();
-});
-
-
-function checkAuthentication() {
-  const userEmail = localStorage.getItem('userEmail');
-  if (userEmail) {
-    document.getElementById('initial-content').style.display = 'none';
-    document.getElementById('register-form').style.display = 'none';
-    document.getElementById('login-form').style.display = 'none';
-    document.getElementById('task-content').style.display = 'block';
-    document.getElementById('logout-button').style.display = 'block';
-    loadTasks();
-  } else {
-    document.getElementById('initial-content').style.display = 'block';
-    document.getElementById('register-form').style.display = 'none';
-    document.getElementById('login-form').style.display = 'none';
-    document.getElementById('task-content').style.display = 'none';
-    document.getElementById('logout-button').style.display = 'none';
-  }
-}
-
-function showRegisterForm() {
-  document.getElementById('initial-content').style.display = 'none';
-  document.getElementById('register-form').style.display = 'block';
-  document.getElementById('login-form').style.display = 'none';
-}
-
-function showLoginForm() {
-  document.getElementById('initial-content').style.display = 'none';
-  document.getElementById('register-form').style.display = 'none';
-  document.getElementById('login-form').style.display = 'block';
-}
-
-
-document.getElementById('register-form').style.display = 'block';
-document.getElementById('login-form').style.display = 'block';
-
 async function register() {
   const email = document.getElementById('register-email').value;
   const password = document.getElementById('register-password').value;
@@ -66,9 +15,7 @@ async function register() {
     if (response.ok) {
       alert('Usuário registrado com sucesso!');
       localStorage.setItem('userEmail', email);
-      document.getElementById('register-form').style.display = 'none';
-      document.getElementById('login-form').style.display = 'none';
-      document.getElementById('task-content').style.display = 'block';
+      window.location.href = 'login.html';
     } else {
       alert(data.error);
     }
@@ -93,70 +40,60 @@ async function login() {
     if (response.ok) {
       alert('Login bem-sucedido!');
       localStorage.setItem('userEmail', email);
-      updateUIOnLogin();
-      loadTasks();
+      window.location.href = 'tasks.html'; 
     } else {
       const error = await response.json();
-      alert(error.message);
+      alert(error.message, "Email ou senha inválidos.");
     }
   } catch (error) {
     console.error('Erro ao fazer login', error);
   }
 }
 
-function updateUIOnLogin() {
-  document.getElementById('initial-content').style.display = 'none';
-  document.getElementById('register-form').style.display = 'none';
-  document.getElementById('login-form').style.display = 'none';
-  document.getElementById('task-content').style.display = 'block';
-  document.getElementById('logout-button').style.display = 'block';
-}
-
 function logout() {
   localStorage.removeItem('userEmail');
-  updateUIOnLogout();
+  alert('Você foi desconectado.');
+  window.location.href = 'index.html';
 }
 
-function updateUIOnLogout() {
-  document.getElementById('initial-content').style.display = 'block';
-  document.getElementById('task-content').style.display = 'none';
-  document.getElementById('logout-button').style.display = 'none';
-  window.location.reload();
-}
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('task-form');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const userEmail = localStorage.getItem('userEmail');
+      if (!userEmail) {
+        alert('Please log in to add tasks');
+        window.location.href = 'login.html'; 
+        return;
+      }
 
+      const taskInput = document.getElementById('task-input');  
+      const task = taskInput.value.trim();
+      if (!task) {
+        alert('Insira uma descrição da tarefa');
+        return;
+      }
 
-const tasksList = document.getElementById('tasks-list');
+      const response = await fetch('http://localhost:3000/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'email': userEmail,
+        },
+        body: JSON.stringify({ description: task }),
+      });
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const userEmail = localStorage.getItem('userEmail');
-  if (!userEmail) {
-    alert('Please log in to add tasks');
-    return;
+      if (response.ok) {
+        taskInput.value = '';
+        loadTasks();
+      } else {
+        alert('Falha ao adicionar tarefa. Por favor, tente novamente.');
+      }
+    });
   }
 
-  const task = taskInput.value.trim();
-  if (!task) {
-    alert('Please enter a task description');
-    return;
-  }
-
-  const response = await fetch('http://localhost:3000/tasks', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'email': userEmail,
-    },
-    body: JSON.stringify({ task }),
-  });
-
-  if (response.ok) {
-    const newTask = await response.json();
-    taskInput.value = '';
-    loadTasks();
-  } else {
-    alert('Failed to add task. Please try again.');
-  }
+  loadTasks(); 
 });
 
 async function loadTasks() {
@@ -180,14 +117,15 @@ async function loadTasks() {
     }
 
     const tasks = await response.json();
+    const tasksList = document.getElementById('tasks-list');
     tasksList.innerHTML = '';
     tasks.forEach(task => {
       tasksList.innerHTML += `
-      <li class="task-item">
-    <input type="checkbox" id="task-${task.id}" class="task-checkbox" onchange="toggleTaskStatus(${task.id}, this)">
-    <label for="task-${task.id}" class="task-label">${task.description}</label>
-    <span onclick="deleteTask(${task.id})" class="delete-icon">🗑️</span>
-  </li>`;
+        <li class="task-item">
+          <input type="checkbox" id="task-${task.id}" class="task-checkbox" onchange="toggleTaskStatus(${task.id}, this)">
+          <label for="task-${task.id}" class="task-label">${task.description}</label>
+          <span onclick="deleteTask(${task.id})" class="delete-icon">🗑️</span>
+        </li>`;
     });
   } catch (error) {
     console.error('Error:', error);
@@ -195,27 +133,22 @@ async function loadTasks() {
 }
 
 function toggleTaskStatus(taskId, checkboxElement) {
-
   const taskItem = checkboxElement.closest('.task-item');
-
-  if (checkboxElement.checked) {
-    taskItem.classList.add('completed');
-  } else {
-    taskItem.classList.remove('completed');
-  }
+  taskItem.classList.toggle('completed');
 }
-
 
 async function deleteTask(id) {
   const userEmail = localStorage.getItem('userEmail');
-  await fetch(`http://localhost:3000/tasks/${id}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      'email': userEmail,
-    },
-  });
-  loadTasks();
+  if (userEmail) {
+    await fetch(`http://localhost:3000/tasks/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'email': userEmail,
+      },
+    });
+    loadTasks();
+  } else {
+    alert("Faça login para gerenciar tarefas");
+  }
 }
-
-loadTasks(); 

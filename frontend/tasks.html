@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarefas Adm</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="task-content">
+        <h2>Suas Tarefas</h2>
+        <form id="task-form" onsubmit="addTask(event)">
+            <input type="text" id="task-input" placeholder="Enter a new task" required>
+            <button type="submit">Add Tarefa</button>
+        </form>
+        <ul id="tasks-list"></ul>
+    </div>
+    
+    <button id="logout-button" onclick="logout()">Logout</button>
+
+    <script src="script.js"></script>
+</body>
+</html>

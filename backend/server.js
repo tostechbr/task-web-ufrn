@@ -43,13 +43,14 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/tasks', (req, res) => {
-  const userEmail = req.headers.email; 
+  const userEmail = req.headers.email;
+  const { description } = req.body; 
 
   if (!tasksByUser[userEmail]) {
     tasksByUser[userEmail] = [];
   }
 
-  const newTask = { id: tasksByUser[userEmail].length + 1, description: task };
+  const newTask = { id: tasksByUser[userEmail].length + 1, description: description };
   tasksByUser[userEmail].push(newTask);
 
   res.status(201).send(newTask);
@@ -59,7 +60,7 @@ app.get('/tasks', (req, res) => {
   const userEmail = req.headers.email; 
 
   if (!userEmail || !tasksByUser[userEmail]) {
-    return res.status(404).send({ error: 'No tasks found for the user' });
+    return res.status(404).send({ error: 'Nenhuma tarefa encontrada para o usuário' });
   }
 
   res.send(tasksByUser[userEmail]);
@@ -69,7 +70,7 @@ app.delete('/tasks/:id', (req, res) => {
   const userEmail = req.headers.email;
   const { id } = req.params;
   if (!userEmail || !tasksByUser[userEmail]) {
-    return res.status(404).send({ error: 'User or task not found' });
+    return res.status(404).send({ error: 'Usuário ou tarefa não encontrada' });
   }
   tasksByUser[userEmail] = tasksByUser[userEmail].filter(task => task.id !== parseInt(id));
   res.status(204).send();
