@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="initial-content">
+        <button onclick="showRegisterForm()">Criar Conta</button>
+        <p>Já tem uma conta? <a href="#" onclick="showLoginForm()">Faça o login</a></p>
+    </div>
+
+    <div id="register-form" style="display:none;">
+        <input type="email" id="register-email" placeholder="Email">
+        <input type="password" id="register-password" placeholder="Senha">
+        <button onclick="register()">Registrar</button>
+        <p><a href="#" onclick="showInitialContent()">Voltar</a></p>
+    </div>
+    
+    <div id="login-form" style="display:none;">
+        <input type="email" id="login-email" placeholder="Email">
+        <input type="password" id="login-password" placeholder="Senha">
+        <button onclick="login()">Login</button>
+        <p><a href="#" onclick="showInitialContent()">Voltar</a></p>
+    </div>
+
+    <div id="task-content" style="display:none;">
+        <form id="task-form">
+            <input type="text" id="task-input" placeholder="Enter a new task" required>
+            <button type="submit">Add Task</button>
+        </form>
+        <ul id="tasks-list"></ul>
+    </div>
+
+    <button id="logout-button" onclick="logout()" style="display:none;">Logout</button>
+
+    <script src="script.js"></script>
+</body>
+</html>

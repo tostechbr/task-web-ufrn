@@ -1,0 +1,14 @@
+# Dependências
+node_modules/
+
+# Arquivos de ambiente
+.env
+
+# Pasta de logs
+logs/
+*.log
+npm-debug.log*
+
+# Diretórios de compilação e arquivos temporários
+tmp/
+temp/
